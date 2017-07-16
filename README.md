@@ -129,3 +129,24 @@
     ```
     Такое свойство inline-функций делает их незаменимыми, в сочетании с тем, что они не существуют в рантайме, 
     полностью встраиваясь в место вызова.
+5. Inline-лямды: reified generics
+
+    В Java информация о generic-типах стирается во время исполнения, поэтому подобный код на Java (ровно как и на Kotlin)
+    работать не будет:
+    ```java
+    <T> T[] create(int size) {
+        return new T[size]; // Generic array creation error
+    }
+    ```
+    ```kotlin
+    fun <T> create(size: Int): Array<T?> {
+        return Array<T?>(size) { null } // Cannot use 'T' as reified type parameter error
+    }
+    ```
+    Однако у inline функций есть информация о типе, так как они встраиваются в место вызова. Для таких функций
+    параметр типа можно пометить ключевым словом `reified` и тогда он будет доступен в рантайме:
+    ```kotlin
+    inline fun <reified T> create(size: Int): Array<T?> {
+        return Array<T?>(size) { null } // OK    
+    }
+    ```
